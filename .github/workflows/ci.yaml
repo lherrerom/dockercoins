@@ -23,7 +23,7 @@ jobs:
           done
         #Ejecutamos los contenedores, primero la BBDD
         docker run -d --name redis --network redis -v redis:/data redis
-        for app in in hasher rng webui worker
+        for app in hasher rng webui worker
           do \
             docker run -d --name ${app} --network ${app} lherrerom/dockercoins:testing-${app} 
           done
