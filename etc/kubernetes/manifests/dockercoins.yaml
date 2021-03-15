@@ -1,0 +1,197 @@
+#creamos un daemon set para el rng, un deployment para el resto 
+# un network policy para todos de 
+#volumenes persistentes
+apiVersion: apps/v1
+kind: DaemondSet
+metadata: 
+  name: rng
+spec:
+  selector:
+    matchLabels: 
+      #podriamos poner lo que quisiéramos, en este caso app: nombreapp, telefono: miTelefono
+      app: rng
+  template:
+    metadata:
+      labels:
+        app: rng
+    spec:
+      containers:
+        -
+          image: lherrerom/dockercoins:latest-rng
+          imagePullPolicy: Always
+          ports:
+            -
+              containerPort: 8080
+              protocol: TCP
+---
+#creamos un Deployment, se ejecuta tantas veces como queramos 
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: hasher
+spec:
+  # Existe un límite de 100 replicas por máquina virtual (por el rango de IPs), en nuestro caso 300 réplicas por cluster, dado que tenemos 3 workers en el cluster
+  replicas: 1
+  selector:
+    matchLabels: 
+      #podriamos poner lo que quisiéramos, en este caso app: nombreapp, telefono: miTelefono
+      app: hasher
+  template:
+    metadata:
+      labels:
+        app: hasher
+    spec:
+      containers:
+        -
+          image: lherrerom/dockercoins:latest-hasher
+          imagePullPolicy: Always
+          ports:
+            -
+              containerPort: 8080
+              protocol: TCP
+---
+#creamos un Deployment para redis
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: redis
+spec:
+  # Existe un límite de 100 replicas por máquina virtual (por el rango de IPs), en nuestro caso 300 réplicas por cluster, dado que tenemos 3 workers en el cluster
+  replicas: 1
+  selector:
+    matchLabels: 
+      #podriamos poner lo que quisiéramos, en este caso app: nombreapp, telefono: miTelefono
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        -
+          image: redis
+          imagePullPolicy: Always
+          ports:
+            -
+              containerPort: 6379
+              protocol: TCP
+          volumeMounts:
+          -
+            mountPath: /data
+            name: redis
+      volumes:
+        -
+          # En name ponemos el mismo nombre que el volumeMounts
+          name: redis
+          # No se haría un volumen persistente, duraría solo mientras exista el pod
+          emptyDir: {}
+---
+#creamos un Deployment para webui
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: webui
+spec:
+  # Existe un límite de 100 replicas por máquina virtual (por el rango de IPs), en nuestro caso 300 réplicas por cluster, dado que tenemos 3 workers en el cluster
+  replicas: 1
+  selector:
+    matchLabels: 
+      #podriamos poner lo que quisiéramos, en este caso app: nombreapp, telefono: miTelefono
+      app: webui
+  template:
+    metadata:
+      labels:
+        app: webui
+    spec:
+      containers:
+        -
+          image: lherrerom/dockercoins:latest-webui
+          imagePullPolicy: Always
+          ports:
+            -
+              containerPort: 8080
+              protocol: TCP
+---
+#creamos un Deployment para worker
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: worker
+spec:
+  # Existe un límite de 100 replicas por máquina virtual (por el rango de IPs), en nuestro caso 300 réplicas por cluster, dado que tenemos 3 workers en el cluster
+  replicas: 1
+  selector:
+    matchLabels: 
+      #podriamos poner lo que quisiéramos, en este caso app: nombreapp, telefono: miTelefono
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+        -
+          image: lherrerom/dockercoins:latest-worker
+          imagePullPolicy: Always
+---
+#Definimos service que está en el core
+apiVersion: v1
+kind: Service
+metadata:
+  name: webui
+spec:
+  ports:
+    -
+      #puerto del balanceador de carga y targetPort es el puerto de balanceador. En docker swarm han de ser iguales el port y target port
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: webui
+---
+#Definimos service que está en el core
+apiVersion: v1
+kind: Service
+metadata:
+  name: rng
+spec:
+  ports:
+    -
+      #puerto del balanceador de carga y targetPort es el puerto de balanceador. En docker swarm han de ser iguales el port y target port
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: rng
+---
+#Definimos service que está en el core
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  ports:
+    -
+      #puerto del balanceador de carga y targetPort es el puerto de balanceador. En docker swarm han de ser iguales el port y target port
+      port: 6379
+      targetPort: 6379
+  selector:
+    app: redis
+---
+#Definimos service que está en el core
+apiVersion: v1
+kind: Service
+metadata:
+  name: hasher
+spec:
+  ports:
+    -
+      #puerto del balanceador de carga y targetPort es el puerto de balanceador. En docker swarm han de ser iguales el port y target port
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: hasher
+---
+  
+
+
+
+    
