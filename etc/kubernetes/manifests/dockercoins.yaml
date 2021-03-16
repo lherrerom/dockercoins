@@ -72,7 +72,7 @@ spec:
       containers:
         -
           image: redis
-          imagePullPolicy: Always
+          #imagePullPolicy: Always
           name: redis
           ports:
             -
