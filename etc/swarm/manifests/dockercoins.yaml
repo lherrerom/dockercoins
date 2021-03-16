@@ -101,7 +101,7 @@ services:
       test: wget -q --spider localhost:8080
       timeout: 1s
     # cogemos la imagen oficial de redis
-    image: image: lherrerom/dockercoins:latest-rng
+    image: lherrerom/dockercoins:latest-rng
     networks:
       #La red intrna que hemos creado 
       - rng
@@ -132,7 +132,7 @@ services:
       test: curl -f localhost:8080
       timeout: 1s
     # cogemos la imagen oficial de redis
-    image: image: lherrerom/dockercoins:latest-webui
+    image: lherrerom/dockercoins:latest-webui
     networks:
       # La web se tiene que conectar a la red de redis (la interna). Es como si tuviera dos tarjetas de red
       - redis
