@@ -2,7 +2,7 @@
 # un network policy para todos de 
 #volumenes persistentes
 apiVersion: apps/v1
-kind: DaemondSet
+kind: DaemonSet
 metadata: 
   name: rng
 spec:
