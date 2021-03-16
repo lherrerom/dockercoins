@@ -19,6 +19,7 @@ spec:
         -
           image: lherrerom/dockercoins:latest-rng
           imagePullPolicy: Always
+          name: rng
           ports:
             -
               containerPort: 8080
@@ -45,6 +46,7 @@ spec:
         -
           image: lherrerom/dockercoins:latest-hasher
           imagePullPolicy: Always
+          name: hasher
           ports:
             -
               containerPort: 8080
@@ -71,6 +73,7 @@ spec:
         -
           image: redis
           imagePullPolicy: Always
+          name: redis
           ports:
             -
               containerPort: 6379
@@ -107,6 +110,7 @@ spec:
         -
           image: lherrerom/dockercoins:latest-webui
           imagePullPolicy: Always
+          name: webui
           ports:
             -
               containerPort: 8080
@@ -133,6 +137,7 @@ spec:
         -
           image: lherrerom/dockercoins:latest-worker
           imagePullPolicy: Always
+          name: worker
 ---
 #Definimos service que está en el core
 apiVersion: v1
